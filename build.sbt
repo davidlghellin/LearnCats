@@ -32,6 +32,11 @@ lazy val scalaHttp4s000 = (project in file("000-curso-udemy"))
     version := "0.0.1-SNAPSHOT",
     scalaVersion := "2.13.10",
     libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % "2.1.1",
+      "org.typelevel" %% "cats-laws" % "2.1.1",
+      "org.typelevel" %% "discipline-core" % "1.0.0",
+      "org.typelevel" %% "discipline-scalatest" % "2.1.1",
+      "org.scalatest" %% "scalatest" % "3.2.2"
     ),
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
