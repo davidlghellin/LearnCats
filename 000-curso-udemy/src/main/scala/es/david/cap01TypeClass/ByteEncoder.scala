@@ -53,5 +53,22 @@ object Ejer02TC extends Channel2 {
     }
 
     Ejer02TC.write[String]("holaaa")(Mas3StrByteEncoder)
+
+    import Switch._
+    Ejer02TC.write[Switch](Switch(true))
+  }
+}
+
+case class Switch(isOn: Boolean)
+object Switch {
+  implicit object SwitchByteEncoder extends ByteEncoder[Switch] {
+    override def encode(a: Switch): Array[Byte] = {
+      Array(
+        a.isOn match {
+          case true => 1.toByte
+          case false => 0.toByte
+        }
+      )
+    }
   }
 }
