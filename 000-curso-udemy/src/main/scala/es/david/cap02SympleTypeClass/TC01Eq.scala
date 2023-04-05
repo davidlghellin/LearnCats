@@ -33,7 +33,8 @@ object TC01Eq extends App {
   println(c1 === c2)
 
   // Alternativas para importar los implicitos de Instances
-  //  import Cuenta.Instances.byNumeroEq
-  implicit val eq: Eq[Cuenta] = Cuenta.Instances.byNumeroEq
+
+  import Cuenta.Instances.byNumeroEq
+  //implicit val eq: Eq[Cuenta] = Cuenta.Instances.byNumeroEq
   println(c1 === c2)
 }
