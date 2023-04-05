@@ -54,8 +54,7 @@ object Ejer02TC extends Channel2 {
 
     Ejer02TC.write[String]("holaaa")(Mas3StrByteEncoder)
 
-    import Switch._
-    Ejer02TC.write[Switch](Switch(true))
+    Ejer02TC.write[Switch](Switch(true))(Switch.SwitchByteEncoder)
   }
 }
 
