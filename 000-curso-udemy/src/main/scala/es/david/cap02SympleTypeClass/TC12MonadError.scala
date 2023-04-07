@@ -46,4 +46,50 @@ object HttpMethod {
 object TC12MonadError extends App {
   println(HttpMethod.executeRequest(HtttpRequest(GET, "una.web")))
   println(HttpMethod.executeRequest3(HtttpRequest(GET, "una.web")))
+
+
+  val optionME: MonadError[Option, Unit] = new MonadError[Option, Unit] {
+    override def pure[A](x: A): Option[A] = Some(x)
+
+    override def raiseError[A](e: Unit): Option[A] = None
+
+    override def flatMap[A, B](fa: Option[A])(f: A => Option[B]): Option[B] =
+      fa.flatMap(f)
+
+    override def handleErrorWith[A](fa: Option[A])(f: Unit => Option[A]): Option[A] = fa.orElse(f(()))
+
+    override def tailRecM[A, B](a: A)(f: A => Option[Either[A, B]]): Option[B] = ???
+  }
+
+  def eitherME[E]: MonadError[Either[E, *], E] = new MonadError[Either[E, *], E] {
+    override def pure[A](x: A): Either[E, A] = Right(x)
+
+    override def raiseError[A](e: E): Either[E, A] = Left(e)
+
+    override def handleErrorWith[A](fa: Either[E, A])(f: E => Either[E, A]): Either[E, A] =
+      fa match {
+        case Left(e) => f(e)
+        case Right(value) => Right(value)
+      }
+
+    override def flatMap[A, B](fa: Either[E, A])(f: A => Either[E, B]): Either[E, B] = ???
+
+    override def tailRecM[A, B](a: A)(f: A => Either[E, Either[A, B]]): Either[E, B] = ???
+  }
+
+  val tryME: MonadError[Try, Throwable] = new MonadError[Try, Throwable] {
+    override def pure[A](x: A): Try[A] = Success(x)
+
+    override def raiseError[A](e: Throwable): Try[A] = Failure(e)
+
+    override def handleErrorWith[A](fa: Try[A])(f: Throwable => Try[A]): Try[A] = fa match {
+      case Failure(exception) => f(exception)
+      case Success(value) => Success(value)
+    }
+
+    override def flatMap[A, B](fa: Try[A])(f: A => Try[B]): Try[B] = ???
+
+    override def tailRecM[A, B](a: A)(f: A => Try[Either[A, B]]): Try[B] = ???
+
+  }
 }
