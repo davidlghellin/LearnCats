@@ -3,6 +3,9 @@ package es.david.cap02SympleTypeClass
 import cats.Applicative
 import cats.implicits.{catsSyntaxTuple3Semigroupal, catsSyntaxTuple4Semigroupal}
 
+import cats._
+import cats.implicits._
+
 object EjemploTeoria extends App {
   sealed trait MyValidated[+A]
 
@@ -106,5 +109,38 @@ object EjemploTeoria extends App {
 
   // Comprueba si son validos, como el v4 no lo es da error
   println((v1, v2, v3, v4).mapN((a, b, c, d) => a + b + c + d))
+
+}
+
+object TC07Aplicativo extends App {
+  val optionApplicative: Applicative[Option] = new Applicative[Option] {
+    override def pure[A](x: A): Option[A] = Some(x)
+
+    override def ap[A, B](ff: Option[A => B])(fa: Option[A]): Option[B] = {
+      (ff, fa) match {
+        case (Some(f), Some(a)) => Some(f(a))
+        case _ => None
+      }
+    }
+  }
+
+  println(optionApplicative.map2(Some(2), Some(4))(_ + _))
+  println(optionApplicative.map2[Int, Int, Int](Some(2), Some(4))(_ + _))
+  println(optionApplicative.map2[Int, Int, Int](None, Some(4))(_ + _))
+
+  val listApplicative: Applicative[List] = new Applicative[List] {
+    override def pure[A](x: A): List[A] = List(x)
+
+    override def ap[A, B](ff: List[A => B])(fa: List[A]): List[B] = {
+      // producto cartesiano
+      (ff, fa) match {
+        case (f :: fs, a :: as) => (a :: as).fmap(f) ++ ap(fs)(a :: as)
+        case _ => Nil
+      }
+    }
+  }
+
+  println(listApplicative.map2(List(1, 2, 3), List(4, 5))(_ * _))
+  println(listApplicative.map2[Int, Int, Int](List(1, 2, 3), Nil)(_ * _))
 
 }
