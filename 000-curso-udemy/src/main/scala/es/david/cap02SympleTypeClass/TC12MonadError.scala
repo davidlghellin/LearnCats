@@ -119,4 +119,22 @@ object TC12MonadError extends App {
   type ErrorOrString[A] = Either[String, A]
   println(executeRequesME2[ErrorOrString, String](HtttpRequest(GET, "una.web"))((e: Exception) => e.getMessage))
 
+  // ver https://softwaremill.com/practical-guide-to-error-handling-in-scala-cats-and-cats-effect
+  // más funciones
+  // nunca devolvemos error
+  println(MonadError[Option, Unit].attempt(Some(5)))
+  println(MonadError[Option, Unit].attempt(None))
+
+  val sucessSucess: Try[Either[Throwable, Int]] = MonadError[Try, Throwable].attempt(Success(3))
+  println(sucessSucess)
+  val successFailure: Try[Either[Throwable, Int]] = MonadError[Try, Throwable].attempt(Failure(new Exception("Boom!")))
+  println(successFailure)
+
+
+  // devolvemos true si se cumple la condición booleana del tercer parámetro
+  println(MonadError[Option, Unit].ensure(Some(4))(())(_ % 2 == 0)) // Some(4)
+  println(MonadError[Option, Unit].ensure(Some("5"))(())(c => c.contains("www"))) // None
+  println(MonadError[ErrorOrString, String].ensure(Right(2))("oh noo error")(_ % 2 == 0))
+  println(MonadError[ErrorOrString, String].ensure(Right("ww.malaweb.com"))("oh noo error")(c => c.contains("www")))
+
 }
