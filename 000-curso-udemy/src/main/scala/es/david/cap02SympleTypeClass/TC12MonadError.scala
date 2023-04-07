@@ -2,6 +2,7 @@ package es.david.cap02SympleTypeClass
 
 import cats._
 import cats.implicits._
+import es.david.cap02SympleTypeClass.HttpMethod.doRequest
 
 import java.io.IOException
 import scala.util.{Failure, Success, Try}
@@ -90,6 +91,32 @@ object TC12MonadError extends App {
     override def flatMap[A, B](fa: Try[A])(f: A => Try[B]): Try[B] = ???
 
     override def tailRecM[A, B](a: A)(f: A => Try[Either[A, B]]): Try[B] = ???
-
   }
+
+  def executeRequesME[F[_]](request: HtttpRequest)(implicit ME: MonadError[F, Throwable]): F[HttpResponse] = {
+    try {
+      ME.pure(doRequest(request))
+    } catch {
+      case e: Exception => ME.raiseError(e)
+    }
+  }
+
+  println(executeRequesME[Try](HtttpRequest(GET, "una.web")))
+  type ErrorOr[A] = Either[Throwable, A]
+  println(executeRequesME[ErrorOr](HtttpRequest(GET, "una.web")))
+
+  // no podemos con error
+  //  println(executeRequesME[Option](HtttpRequest(GET, "una.web")))
+  def executeRequesME2[F[_], E](request: HtttpRequest)(f: Exception => E)(implicit ME: MonadError[F, E]): F[HttpResponse] = {
+    try {
+      ME.pure(doRequest(request))
+    } catch {
+      case e: Exception => ME.raiseError(f(e))
+    }
+  }
+
+  println(executeRequesME2[Option, Unit](HtttpRequest(GET, "una.web"))((e: Exception) => ()))
+  type ErrorOrString[A] = Either[String, A]
+  println(executeRequesME2[ErrorOrString, String](HtttpRequest(GET, "una.web"))((e: Exception) => e.getMessage))
+
 }
