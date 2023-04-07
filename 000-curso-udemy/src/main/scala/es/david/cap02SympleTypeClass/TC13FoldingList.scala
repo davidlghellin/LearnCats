@@ -64,6 +64,25 @@ object TC13FoldingList extends App {
       (x, y) => if (x > 0) MCons(x, y) else y
     }
   }
+
   println(filterPositivosFold(cola))
+
+  def foldLeft[A, B](list: MList[A])(acc: B)(f: (B, A) => B): B = {
+    list match {
+      case MCons(h, t) => foldLeft(t)(f(acc, h))(f)
+      case MNil => acc
+    }
+  }
+
+  def sumLeft(list: MList[Int]): Int =
+    foldLeft(list)(0)(_ + _)
+
+  println(sumLeft(cola))
+
+  def lengthListLeft[A](list: MList[A]): Int = {
+    foldLeft(list)(0)((x, y) => 1 + x)
+  }
+
+  println(lengthListLeft(cola))
 
 }
