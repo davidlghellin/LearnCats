@@ -1,5 +1,8 @@
 package es.david.cap02SympleTypeClass
 
+import cats.Monad
+import cats.implicits.catsStdInstancesForOption
+
 sealed trait MOption[+A] {
   def flatMap[A, B](fa: MOption[A])(f: A => MOption[B]): MOption[B] =
     fa match {
@@ -58,4 +61,37 @@ object TC08Option extends App {
     transfer <- findLastTransferByOrigenDeLaCuenta(acc)
   } yield transfer
 
+}
+
+object Ejercicio extends App {
+  sealed trait MOptionEjer[+A]
+
+  case class MSomeEjer[+A](a: A) extends MOptionEjer[A]
+
+  case object MNoneEjer extends MOptionEjer[Nothing]
+
+  implicit val monadOptionEjer: Monad[MOptionEjer] = new Monad[MOptionEjer] {
+    override def pure[A](x: A): MOptionEjer[A] = MSomeEjer(x)
+
+    override def flatMap[A, B](fa: MOptionEjer[A])(f: A => MOptionEjer[B]): MOptionEjer[B] = fa match {
+      case MSomeEjer(a) => f(a)
+      case MNoneEjer => MNoneEjer
+    }
+
+    override def map[A, B](fa: MOptionEjer[A])(f: A => B): MOptionEjer[B] =
+      flatMap(fa)(a => pure(f(a)))
+
+    override def flatten[A](ffa: MOptionEjer[MOptionEjer[A]]): MOptionEjer[A] =
+      flatMap(ffa)(x => x)
+
+    override def tailRecM[A, B](a: A)(f: A => MOptionEjer[Either[A, B]]): MOptionEjer[B] = ???
+
+  }
+  val opt: Option[Int] = Some(2).flatMap(i => Some(i + 2))
+  println(opt)
+
+  val optOpt: Option[Option[Int]] = Monad[Option].pure(Monad[Option].pure(54))
+  println(optOpt)
+  println(optOpt.flatten)
+  println(optOpt.flatten)
 }
