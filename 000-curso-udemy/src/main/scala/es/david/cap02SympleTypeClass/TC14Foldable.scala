@@ -88,4 +88,27 @@ object TC14Foldable extends App {
   println(exits[MListF, Int](MListF(1, 2, 3, 4))(i => i % 2 == 0))
   println(exits[MListF, Int](MListF(1, 3))(i => i % 2 == 0))
 
+
+  //
+  def toList[F[_] : Foldable, A](fa: F[A]): MListF[A] =
+  //    fa match {
+  //      case MNil => MNil
+  //      case MCons(h, t) => MCons(h, toList(t))
+  //    }
+  //    fa.foldLeft[MListF[A]](MNil)((b, a) => MCons(a, b))
+    fa.foldRight[MListF[A]](Eval.now(MNil))((a, eb) => Eval.now(MCons(a, eb.value))).value
+
+  println(toList[MListF, Int](MListF(1, 2, 3, 4))) // MCons(4,MCons(3,MCons(2,MCons(1,MNil))))
+
+  def forAll[F[_] : Foldable, A](fa: F[A])(p: A => Boolean): Boolean = {
+    //    fa match {
+    //      case MNil => true
+    //      case MCons(h, t) => if (p(p)) forAll(t)(p) else false
+    //    }
+    fa.foldLeft[Boolean](true)((b, actual) => if (p(actual)) b else false)
+  }
+
+  println(forAll[MListF, Int](MListF(1, 2, 3, 4))(i => i % 2 == 0))
+  println(forAll[MListF, Int](MListF(2, 4))(i => i % 2 == 0))
+
 }
