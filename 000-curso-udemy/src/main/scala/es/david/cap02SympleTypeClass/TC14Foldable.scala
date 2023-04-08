@@ -73,5 +73,19 @@ object TC14Foldable extends App {
 
   // Encuentra el último
   println(find[MListF, Int](MListF(1, 2, 3, 4))(i => i % 2 == 0))
+  println(find[MListF, Int](MListF(1, 3))(i => i % 2 == 0))
+
+
+  def exits[F[_] : Foldable, A](fa: F[A])(p: A => Boolean): Boolean = {
+    //        fa match {
+    //          case MNil => false
+    //          case MCons(h, t) => if (p(h)) true else exits(t)
+    //        }
+    // find(fa)(p).nonEmpty
+    fa.foldLeft[Boolean](false)((b, actual) => if (p(actual)) true else false)
+  }
+
+  println(exits[MListF, Int](MListF(1, 2, 3, 4))(i => i % 2 == 0))
+  println(exits[MListF, Int](MListF(1, 3))(i => i % 2 == 0))
 
 }
